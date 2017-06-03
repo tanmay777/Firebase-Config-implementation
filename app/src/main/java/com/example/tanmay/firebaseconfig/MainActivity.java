@@ -1,5 +1,6 @@
 package com.example.tanmay.firebaseconfig;
 
+import android.nfc.Tag;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -54,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
                 .setDeveloperModeEnabled(BuildConfig.DEBUG)
                 .build();
         mFirebaseRemoteConfig.setConfigSettings(configSettings);
-
         //Set default Remote Config parameter values. An app uses the in-app default values, and
         //when you need to adjust those defaults, you set an updated value for only the values you
         //want to change in the Firebase console.
@@ -67,13 +67,17 @@ public class MainActivity extends AppCompatActivity {
     //Fetch a Welcome from the Remote Config service and then activate it.
     private void fetchWelcome() {
         mWelcomeTextView.setText(mFirebaseRemoteConfig.getString(LOADING_PHRASE_CONFIG_KEY));
-        long cacheExpiration = 3600; // 1 hour in seconds
+        long cacheExpiration = 3600;
+        //I don't know why dev mode is not being detected so
+        //you can set long cacheExpiration =0; for testing purpose
 
         //if app is in developer mode the cache expiration is set to 0, so each fetch
         //retrives values from the service
 
         if(mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()){
             cacheExpiration=0;
+            Toast.makeText(getApplicationContext(),"Dev mode active",Toast.LENGTH_SHORT).show();
+            Log.v(TAG,"Dev mode is activated");
         }
 
         //cacheExpirationSeconds is set to cacheExpiration here, indicating the next fetch request
@@ -90,11 +94,9 @@ public class MainActivity extends AppCompatActivity {
 
                             //After config data is successfully fetched, it must be activated before newly fetched
                             //values are returned
-                            Log.d("AppConfig","App config loaded");
                             mFirebaseRemoteConfig.activateFetched();
                         }else {
                             Toast.makeText(MainActivity.this,"Fetch Failed",Toast.LENGTH_SHORT).show();
-                            Log.e("AppConfig","AppConfig  failed to load");
                         }
                         displayWelcomeMessage();
                     }
